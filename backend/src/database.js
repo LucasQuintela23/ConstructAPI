@@ -25,6 +25,8 @@ db.exec(`
   )
 `);
 
+const ALLOWED_COLUMN_TYPES = new Set(['TEXT', 'REAL', 'INTEGER']);
+
 function getColumnType(fieldType) {
   switch (fieldType) {
     case 'number':
@@ -36,6 +38,15 @@ function getColumnType(fieldType) {
     default:
       return 'TEXT';
   }
+}
+
+// Validate the output of getColumnType is always an expected SQLite type
+function safeColumnType(fieldType) {
+  const colType = getColumnType(fieldType);
+  if (!ALLOWED_COLUMN_TYPES.has(colType)) {
+    throw new Error(`Unexpected column type: ${colType}`);
+  }
+  return colType;
 }
 
 // Only allow alphanumeric + underscore for identifiers to prevent SQL injection
@@ -60,7 +71,7 @@ function sanitizeFieldName(name) {
 function createDataTable(templateId, fields) {
   const tableName = sanitizeTableName(templateId);
   const columns = fields
-    .map(f => `"${sanitizeFieldName(f.name)}" ${getColumnType(f.type)}`)
+    .map(f => `"${sanitizeFieldName(f.name)}" ${safeColumnType(f.type)}`)
     .join(', ');
   db.exec(
     `CREATE TABLE IF NOT EXISTS "${tableName}" (` +
@@ -73,4 +84,4 @@ function dropDataTable(templateId) {
   db.exec(`DROP TABLE IF EXISTS "${tableName}"`);
 }
 
-module.exports = { db, createDataTable, dropDataTable, getColumnType, sanitizeTableName, sanitizeFieldName };
+module.exports = { db, createDataTable, dropDataTable, getColumnType, sanitizeTableName, sanitizeFieldName, safeColumnType };

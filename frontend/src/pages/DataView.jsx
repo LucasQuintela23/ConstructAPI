@@ -32,18 +32,24 @@ export default function DataView() {
   );
 
   useEffect(() => {
+    let cancelled = false;
     async function init() {
       try {
         const { data: res } = await api.get(`/templates/${id}`);
-        setTemplate(res.template);
-        await fetchData(1, '');
+        if (!cancelled) {
+          setTemplate(res.template);
+          await fetchData(1, '');
+        }
       } catch (e) {
-        setError('Failed to load template');
-        setLoading(false);
+        if (!cancelled) {
+          setError('Failed to load template');
+          setLoading(false);
+        }
       }
     }
     init();
-  }, [id]);
+    return () => { cancelled = true; };
+  }, [id, fetchData]);
 
   async function handleDelete(recordId) {
     if (!window.confirm('Delete this record?')) return;
