@@ -38,22 +38,34 @@ function getColumnType(fieldType) {
   }
 }
 
+// Only allow alphanumeric + underscore for identifiers to prevent SQL injection
+const SAFE_IDENTIFIER_RE = /^[a-zA-Z0-9_]+$/;
+
 function sanitizeTableName(templateId) {
-  return `data_${templateId.replace(/-/g, '_')}`;
+  // templateId is a UUID — replace hyphens with underscores (safe chars only)
+  const safe = templateId.replace(/-/g, '_');
+  if (!SAFE_IDENTIFIER_RE.test(safe)) {
+    throw new Error(`Invalid template ID: ${templateId}`);
+  }
+  return `data_${safe}`;
+}
+
+function sanitizeFieldName(name) {
+  if (!SAFE_IDENTIFIER_RE.test(name)) {
+    throw new Error(`Invalid field name "${name}": only alphanumeric characters and underscores are allowed`);
+  }
+  return name;
 }
 
 function createDataTable(templateId, fields) {
   const tableName = sanitizeTableName(templateId);
   const columns = fields
-    .map(f => `"${f.name}" ${getColumnType(f.type)}`)
+    .map(f => `"${sanitizeFieldName(f.name)}" ${getColumnType(f.type)}`)
     .join(', ');
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS "${tableName}" (
-      id TEXT PRIMARY KEY,
-      ${columns},
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
+  db.exec(
+    `CREATE TABLE IF NOT EXISTS "${tableName}" (` +
+    `id TEXT PRIMARY KEY, ${columns}, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`
+  );
 }
 
 function dropDataTable(templateId) {
@@ -61,4 +73,4 @@ function dropDataTable(templateId) {
   db.exec(`DROP TABLE IF EXISTS "${tableName}"`);
 }
 
-module.exports = { db, createDataTable, dropDataTable, getColumnType, sanitizeTableName };
+module.exports = { db, createDataTable, dropDataTable, getColumnType, sanitizeTableName, sanitizeFieldName };

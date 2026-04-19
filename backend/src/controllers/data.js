@@ -1,7 +1,14 @@
 const { db, sanitizeTableName } = require('../database');
 const { v4: uuidv4 } = require('uuid');
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateId(id) {
+  return UUID_RE.test(id);
+}
+
 function getTemplate(templateId) {
+  if (!validateId(templateId)) return null;
   const template = db.prepare('SELECT * FROM templates WHERE id = ?').get(templateId);
   if (!template) return null;
   return { ...template, fields: JSON.parse(template.fields) };
@@ -92,6 +99,7 @@ function create(req, res) {
 function getOne(req, res) {
   try {
     const { templateId, id } = req.params;
+    if (!validateId(id)) return res.status(400).json({ error: 'Invalid record ID' });
     const template = getTemplate(templateId);
     if (!template) return res.status(404).json({ error: 'Template not found' });
 
@@ -107,6 +115,7 @@ function getOne(req, res) {
 function update(req, res) {
   try {
     const { templateId, id } = req.params;
+    if (!validateId(id)) return res.status(400).json({ error: 'Invalid record ID' });
     const template = getTemplate(templateId);
     if (!template) return res.status(404).json({ error: 'Template not found' });
 
@@ -134,6 +143,7 @@ function update(req, res) {
 function remove(req, res) {
   try {
     const { templateId, id } = req.params;
+    if (!validateId(id)) return res.status(400).json({ error: 'Invalid record ID' });
     const template = getTemplate(templateId);
     if (!template) return res.status(404).json({ error: 'Template not found' });
 
