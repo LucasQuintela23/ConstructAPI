@@ -24,11 +24,11 @@ export default function UploadView() {
     if (!f) return;
     const allowed = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-excel',
       'text/csv',
+      'application/csv',
     ];
-    if (!allowed.includes(f.type) && !f.name.match(/\.(xlsx|xls|csv)$/i)) {
-      setError('Please upload an Excel (.xlsx, .xls) or CSV file');
+    if (!allowed.includes(f.type) && !f.name.match(/\.(xlsx|csv)$/i)) {
+      setError('Please upload an Excel (.xlsx) or CSV file');
       return;
     }
     setFile(f);
@@ -112,11 +112,11 @@ export default function UploadView() {
           <p className="text-sm font-medium text-gray-600">
             Drag & drop a file here, or <span className="text-indigo-600">click to select</span>
           </p>
-          <p className="text-xs text-gray-400 mt-1">Supports .xlsx, .xls, .csv</p>
+          <p className="text-xs text-gray-400 mt-1">Supports .xlsx, .csv</p>
           <input
             ref={fileRef}
             type="file"
-            accept=".xlsx,.xls,.csv"
+            accept=".xlsx,.csv"
             className="hidden"
             onChange={e => handleFile(e.target.files[0])}
           />

@@ -7,7 +7,7 @@
 - **Visual Template Builder** – Design data schemas with a drag-and-drop field editor (text, number, date, boolean, select, email, textarea)
 - **Auto-generated REST API** – Every template instantly produces a full CRUD API (`GET`, `POST`, `PUT`, `DELETE`)
 - **Auto-generated Forms** – Each template renders a data-entry form for manual record creation
-- **Spreadsheet Import** – Bulk-ingest data by uploading Excel (`.xlsx`, `.xls`) or CSV files; column headers are mapped automatically to template fields (supports complex reports, RGF, STN accounting sheets)
+- **Spreadsheet Import** – Bulk-ingest data by uploading Excel (`.xlsx`) or CSV files; column headers are mapped automatically to template fields (supports complex reports, RGF, STN accounting sheets)
 - **Pagination & Search** – Browse records with server-side pagination and full-text search
 - **Self-hosted** – Runs entirely on your infrastructure via Docker Compose; data never leaves your environment
 
@@ -125,7 +125,7 @@ POST /api/upload/:templateId
 Content-Type: multipart/form-data
 ```
 
-Field: `file` — an `.xlsx`, `.xls`, or `.csv` file.  
+Field: `file` — an `.xlsx` or `.csv` file.  
 Column headers are matched to template field **names** or **labels** (case-insensitive).
 
 Response:
